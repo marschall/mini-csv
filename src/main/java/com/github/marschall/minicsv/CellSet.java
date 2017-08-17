@@ -1,5 +1,7 @@
 package com.github.marschall.minicsv;
 
+import java.math.BigDecimal;
+
 import com.github.marschall.lineparser.Line;
 
 public class CellSet {
@@ -35,6 +37,9 @@ public class CellSet {
   }
 
   public String getString() {
+  }
+
+  public BigDecimal getAsBigDecimal() {
   }
 
 }

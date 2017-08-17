@@ -18,11 +18,11 @@ public final class Row {
   }
 
   public Line getLine() {
-    return line;
+    return this.line;
   }
 
   public Iterable<Cell> getCells() {
-    return new CellIterable(CharSequences.split(this.line.getContent(), delimiter));
+    return new CellIterable(CharSequences.split(this.line.getContent(), this.delimiter));
   }
 
   static final class CellIterable implements Iterable<Cell> {
@@ -55,12 +55,12 @@ public final class Row {
 
     @Override
     public Cell next() {
-      return new Cell(this.charSequenceIterator.next());
+      return Cell.forSequence(this.charSequenceIterator.next());
     }
 
     @Override
     public void forEachRemaining(Consumer<? super Cell> action) {
-      this.charSequenceIterator.forEachRemaining(charSequence -> action.accept(new Cell(charSequence)));
+      this.charSequenceIterator.forEachRemaining(charSequence -> action.accept(Cell.forSequence(charSequence)));
     }
 
   }

@@ -10,7 +10,7 @@ public class CsvParserTest {
 
   public static void main(String[] args) throws IOException {
     long start = System.currentTimeMillis();
-    Path path = Paths.get("/Users/marschall/git/mini-csv/ss10pusa.csv");
+    Path path = Paths.get("/home/marschall/git/mini-csv/ss10pusa.csv");
     CsvParser parser = new CsvParser(',');
     Accumulator count = new Accumulator();
     parser.parse(path, StandardCharsets.ISO_8859_1, row -> {
@@ -27,11 +27,11 @@ public class CsvParserTest {
     private long count;
 
     void increment() {
-      count += 1L;
+      this.count += 1L;
     }
 
     long getCount() {
-      return count;
+      return this.count;
     }
 
   }

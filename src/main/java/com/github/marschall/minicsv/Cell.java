@@ -1,15 +1,29 @@
 package com.github.marschall.minicsv;
 
+import java.math.BigDecimal;
+
 import com.github.marschall.charsequences.CharSequences;
 
 public final class Cell {
 
+  private static final Cell EMPTY = new Cell("");
+
   private final CharSequence charSequence;
 
   // TODO index
+  // TODO quotes
+  // TODO default values
 
-  Cell(CharSequence charSequence) {
+  private Cell(CharSequence charSequence) {
     this.charSequence = charSequence;
+  }
+
+  static Cell forSequence(CharSequence charSequence) {
+    if (charSequence.length() == 0) {
+      return EMPTY;
+    } else {
+      return new Cell(charSequence);
+    }
   }
 
   public CharSequence getCharSequence() {
@@ -26,6 +40,10 @@ public final class Cell {
 
   public long getAsLong() {
     return CharSequences.parseLong(this.charSequence);
+  }
+
+  public BigDecimal getAsBigDecimal() {
+    return new BigDecimal(this.charSequence.toString());
   }
 
   public String getAsString() {
