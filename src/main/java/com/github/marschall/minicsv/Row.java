@@ -12,8 +12,11 @@ public final class Row {
 
   private final char delimiter;
 
-  Row(Line line, char delimiter) {
+  private final int lineNumber;
+
+  Row(Line line, int lineNumber, char delimiter) {
     this.line = line;
+    this.lineNumber = lineNumber;
     this.delimiter = delimiter;
   }
 
@@ -23,6 +26,10 @@ public final class Row {
 
   public Iterable<Cell> getCells() {
     return new CellIterable(CharSequences.split(this.line.getContent(), this.delimiter));
+  }
+
+  public CellSet getCellSet() {
+    return new CellSet(this.line, this.lineNumber, this.delimiter);
   }
 
   static final class CellIterable implements Iterable<Cell> {

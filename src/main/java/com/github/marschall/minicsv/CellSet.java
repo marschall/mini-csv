@@ -5,7 +5,11 @@ import java.math.BigDecimal;
 import com.github.marschall.charsequences.CharSequences;
 import com.github.marschall.lineparser.Line;
 
-public class CellSet {
+/**
+ * A set of cells in a row, can be iterated over much like a
+ * {@link java.sql.ResultSet}.
+ */
+public final class CellSet {
 
   // TODO quotes
   // TODO BigDecimal pattern
@@ -20,14 +24,14 @@ public class CellSet {
   private int columnIndex;
 
   private final int lineNumber;
+  private boolean start;
 
   CellSet(Line line, int lineNumber, char delimiter) {
     this.lineNumber = lineNumber;
     this.charSequence = line.getContent();
     this.delimiter = delimiter;
 
-    this.nextStart = 0;
-    this.nextEnd = this.findEnd();
+    this.start = true;
     this.columnIndex = 0;
   }
 
@@ -46,6 +50,12 @@ public class CellSet {
   }
 
   public boolean next() {
+    if (this.start) {
+      this.nextStart = 0;
+      this.nextEnd = this.findEnd();
+      this.start = false;
+      return true;
+    }
     if (this.nextStart ==  -1) {
       return false;
     }
@@ -76,7 +86,7 @@ public class CellSet {
   }
 
   public boolean isCellEmpty() {
-    return (this.nextEnd - this.nextStart) == 1;
+    return (this.nextEnd - this.nextStart) == 0;
   }
 
   public int getInt() {
@@ -91,7 +101,7 @@ public class CellSet {
     return this.getCharSequence().toString();
   }
 
-  public BigDecimal getAsBigDecimal() {
+  public BigDecimal getBigDecimal() {
     return new BigDecimal(this.getString());
   }
 

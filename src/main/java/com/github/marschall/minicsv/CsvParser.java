@@ -25,9 +25,26 @@ public final class CsvParser {
 
   public void parse(Path path, Charset cs, Consumer<Row> rowCallback) throws IOException {
     LineParser lineParser = new LineParser();
+    LineNumber lineNumber = new LineNumber();
     lineParser.forEach(path, cs, line -> {
-      rowCallback.accept(new Row(line, delimiter));
+      rowCallback.accept(new Row(line, lineNumber.incrementAndGet(), this.delimiter));
     });
+  }
+
+  static final class LineNumber {
+
+    private int value;
+
+    LineNumber() {
+      this.value = 0;
+    }
+
+    int incrementAndGet() {
+      int returnValue = this.value;
+      this.value += 1;
+      return returnValue;
+    }
+
   }
 
 }

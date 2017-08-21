@@ -14,7 +14,11 @@ public class CsvParserTest {
     CsvParser parser = new CsvParser(',');
     Accumulator count = new Accumulator();
     parser.parse(path, StandardCharsets.ISO_8859_1, row -> {
-      for (Cell cell : row.getCells()) {
+//      for (Cell cell : row.getCells()) {
+//        count.increment();
+//      }
+      CellSet cellSet = row.getCellSet();
+      while (cellSet.next()) {
         count.increment();
       }
     });
