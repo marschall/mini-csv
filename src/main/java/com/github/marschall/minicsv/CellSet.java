@@ -3,7 +3,6 @@ package com.github.marschall.minicsv;
 import java.math.BigDecimal;
 
 import com.github.marschall.charsequences.CharSequences;
-import com.github.marschall.lineparser.Line;
 
 /**
  * A set of cells in a row, can be iterated over much like a
@@ -15,21 +14,16 @@ public final class CellSet {
   // TODO BigDecimal pattern
   // TODO default values for empty int and long
 
-  private final CharSequence charSequence;
-
-  private final char delimiter;
+  private final Row row;
 
   private int nextStart;
   private int nextEnd;
   private int columnIndex;
 
-  private final int lineNumber;
   private boolean start;
 
-  CellSet(Line line, int lineNumber, char delimiter) {
-    this.lineNumber = lineNumber;
-    this.charSequence = line.getContent();
-    this.delimiter = delimiter;
+  CellSet(Row row) {
+    this.row = row;
 
     this.start = true;
     this.columnIndex = 0;
@@ -37,11 +31,12 @@ public final class CellSet {
 
   private int findEnd() {
     int fromIndex = this.nextStart;
-    int length = this.charSequence.length();
+    CharSequence charSequence = this.row.line.getContent();
+    int length = charSequence.length();
     if (fromIndex > length) {
       return length;
     }
-    int end = CharSequences.indexOf(this.charSequence, this.delimiter, fromIndex);
+    int end = CharSequences.indexOf(charSequence, this.row.delimiter, fromIndex);
     if (end == -1) {
       return length;
     } else {
@@ -61,7 +56,8 @@ public final class CellSet {
     }
 
     this.nextStart = this.nextEnd + 1; // skip the delimiter
-    if (this.nextStart > this.charSequence.length()) {
+    CharSequence charSequence = this.row.line.getContent();
+    if (this.nextStart > charSequence.length()) {
       // end is reached
       this.nextStart = -1;
       return false;
@@ -78,11 +74,12 @@ public final class CellSet {
   }
 
   public int getLineNumber() {
-    return this.lineNumber;
+    return this.row.lineNumber;
   }
 
   public CharSequence getCharSequence() {
-    return this.charSequence.subSequence(this.nextStart, this.nextEnd);
+    CharSequence charSequence = this.row.line.getContent();
+    return charSequence.subSequence(this.nextStart, this.nextEnd);
   }
 
   public boolean isCellEmpty() {
@@ -90,11 +87,13 @@ public final class CellSet {
   }
 
   public int getInt() {
-    return CharSequences.parseInt(this.charSequence, this.nextStart, this.nextEnd);
+    CharSequence charSequence = this.row.line.getContent();
+    return CharSequences.parseInt(charSequence, this.nextStart, this.nextEnd);
   }
 
   public long getLong() {
-    return CharSequences.parseLong(this.charSequence, this.nextStart, this.nextEnd);
+    CharSequence charSequence = this.row.line.getContent();
+    return CharSequences.parseLong(charSequence, this.nextStart, this.nextEnd);
   }
 
   public String getString() {
