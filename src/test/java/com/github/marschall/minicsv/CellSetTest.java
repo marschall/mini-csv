@@ -17,7 +17,7 @@ import com.github.marschall.lineparser.LineParser;
 public class CellSetTest {
 
   @Test
-  public void test() throws IOException {
+  public void basicParsing() throws IOException {
     LineParser parser = new LineParser();
     AtomicInteger lineNumberHolder = new AtomicInteger(0);
     parser.forEach(Paths.get("src/test/resources/test.csv"), StandardCharsets.US_ASCII, line -> {

@@ -8,11 +8,11 @@ import com.github.marschall.lineparser.Line;
 
 public final class Row {
 
-  final Line line;
+  private final Line line;
 
-  final char delimiter;
+  private final char delimiter;
 
-  final int lineNumber;
+  private final int lineNumber;
 
   Row(Line line, int lineNumber, char delimiter) {
     this.line = line;
@@ -29,7 +29,7 @@ public final class Row {
   }
 
   public CellSet getCellSet() {
-    return new CellSet(this);
+    return new CellSet(this.line, this.lineNumber, this.delimiter);
   }
 
   static final class CellIterable implements Iterable<Cell> {
