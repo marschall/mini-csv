@@ -32,7 +32,7 @@ public final class CellSet {
     this.delimiter = delimiter;
 
     this.start = true;
-    this.columnIndex = 0;
+    this.columnIndex = -1; // first time scanning will increment to 0
   }
 
   private int findEnd() {
@@ -50,17 +50,19 @@ public final class CellSet {
   }
 
   public boolean next() {
-    if (this.start) {
-      this.nextStart = 0;
-      this.nextEnd = this.findEnd();
-      this.start = false;
-      return true;
-    }
     if (this.nextStart ==  -1) {
       return false;
     }
 
-    this.nextStart = this.nextEnd + 1; // skip the delimiter
+    // keep code paths as similar as possible in order to reduce method
+    // size after inlining
+    if (this.start) {
+      this.nextStart = 0;
+      this.start = false;
+    } else {
+      this.nextStart = this.nextEnd + 1; // skip the delimiter
+    }
+
     if (this.nextStart > this.charSequence.length()) {
       // end is reached
       this.nextStart = -1;
