@@ -1,6 +1,9 @@
 package com.github.marschall.minicsv;
 
 import java.math.BigDecimal;
+import java.nio.charset.Charset;
+import java.nio.file.Path;
+import java.util.function.Consumer;
 
 import com.github.marschall.charsequences.CharSequences;
 import com.github.marschall.lineparser.Line;
@@ -8,6 +11,11 @@ import com.github.marschall.lineparser.Line;
 /**
  * A set of cells in a row, can be iterated over much like a
  * {@link java.sql.ResultSet}.
+ *
+ * <p>It is an error to hold on to a {@link CellSet} for longer than
+ * the row callback invoked by
+ * {@link com.github.marschall.minicsv.CsvParser#parse(Path, Charset, Consumer)}.
+ * </p>
  */
 public final class CellSet {
 
@@ -83,6 +91,19 @@ public final class CellSet {
     return this.lineNumber;
   }
 
+  /**
+   * Returns the current cell as a {@link CharSequence}.
+   *
+   * <p>No assumption about the implementation class of the returned
+   * {@link CharSequence} can be made.</p>
+   *
+   * <p>It is an error to hold on to a {@link CellSet} for longer than
+   * the row callback invoked by
+   * {@link com.github.marschall.minicsv.CsvParser#parse(Path, Charset, Consumer)}.
+   * </p>
+   *
+   * @return the current cell as a {@link CharSequence}
+   */
   public CharSequence getCharSequence() {
     return this.charSequence.subSequence(this.nextStart, this.nextEnd);
   }
@@ -91,10 +112,24 @@ public final class CellSet {
     return (this.nextEnd - this.nextStart) == 0;
   }
 
+  /**
+   * Parses the current cell as an {@code int}.
+   *
+   * @implNote does not allocate
+   * @return the current cell as an {@code int}
+   * @throws NumberFormatException if the current cell does not contain a parsable int
+   */
   public int getInt() {
     return CharSequences.parseInt(this.charSequence, this.nextStart, this.nextEnd);
   }
 
+  /**
+   * Parses the current cell as an {@code long}.
+   *
+   * @implNote does not allocate
+   * @return the current cell as an {@code long}
+   * @throws NumberFormatException if the current cell does not contain a parsable long
+   */
   public long getLong() {
     return CharSequences.parseLong(this.charSequence, this.nextStart, this.nextEnd);
   }
@@ -105,6 +140,12 @@ public final class CellSet {
 
   public BigDecimal getBigDecimal() {
     return new BigDecimal(this.getString());
+  }
+
+  public void ifNotEmpty(Consumer<CellSet> consumer) {
+    if (!this.isCellEmpty()) {
+      consumer.accept(this);
+    }
   }
 
 }

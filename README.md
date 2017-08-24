@@ -1,3 +1,6 @@
+Mini CSV
+========
+
 An experiment in building a CSV parser
 
 severely lacking in features
