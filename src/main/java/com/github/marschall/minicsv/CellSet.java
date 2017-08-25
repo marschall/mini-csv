@@ -3,6 +3,16 @@ package com.github.marschall.minicsv;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 import com.github.marschall.charsequences.CharSequences;
@@ -16,6 +26,8 @@ import com.github.marschall.lineparser.Line;
  * the row callback invoked by
  * {@link com.github.marschall.minicsv.CsvParser#parse(Path, Charset, Consumer)}.
  * </p>
+ *
+ * @see <a href="http://blog.joda.org/2015/09/naming-optional-query-methods.html">Naming Optional query methods</a>
  */
 public final class CellSet {
 
@@ -123,6 +135,39 @@ public final class CellSet {
     return CharSequences.parseInt(this.charSequence, this.nextStart, this.nextEnd);
   }
 
+  public int getIntOrDefault(int defaultValue) {
+    if (this.isCellEmpty()) {
+      return defaultValue;
+    }
+    try {
+      return CharSequences.parseInt(this.charSequence, this.nextStart, this.nextEnd);
+    } catch (NumberFormatException e) {
+      return defaultValue;
+    }
+  }
+
+  public Integer getInteger() {
+    if (this.isCellEmpty()) {
+      return null;
+    }
+    try {
+      return CharSequences.parseInt(this.charSequence, this.nextStart, this.nextEnd);
+    } catch (NumberFormatException e) {
+      return null;
+    }
+  }
+
+  public Optional<Integer> findInteger() {
+    if (this.isCellEmpty()) {
+      return Optional.empty();
+    }
+    try {
+      return Optional.of(CharSequences.parseInt(this.charSequence, this.nextStart, this.nextEnd));
+    } catch (NumberFormatException e) {
+      return Optional.empty();
+    }
+  }
+
   /**
    * Parses the current cell as an {@code long}.
    *
@@ -138,8 +183,131 @@ public final class CellSet {
     return this.getCharSequence().toString();
   }
 
+  public LocalDate getLocalDate(DateTimeFormatter formatter) {
+    if (this.isCellEmpty()) {
+      return null;
+    }
+    try {
+      return LocalDate.parse(this.getCharSequence(), formatter);
+    } catch (DateTimeParseException e) {
+      return null;
+    }
+  }
+
+  public Optional<LocalDate> findLocalDate(DateTimeFormatter formatter) {
+    if (this.isCellEmpty()) {
+      return Optional.empty();
+    }
+    try {
+      return Optional.of(LocalDate.parse(this.getCharSequence(), formatter));
+    } catch (DateTimeParseException e) {
+      return Optional.empty();
+    }
+  }
+
+  public LocalTime getLocalTime(DateTimeFormatter formatter) {
+    if (this.isCellEmpty()) {
+      return null;
+    }
+    try {
+      return LocalTime.parse(this.getCharSequence(), formatter);
+    } catch (DateTimeParseException e) {
+      return null;
+    }
+  }
+
+  public Optional<LocalTime> findLocalTime(DateTimeFormatter formatter) {
+    if (this.isCellEmpty()) {
+      return Optional.empty();
+    }
+    try {
+      return Optional.of(LocalTime.parse(this.getCharSequence(), formatter));
+    } catch (DateTimeParseException e) {
+      return Optional.empty();
+    }
+  }
+
+  public LocalDateTime getLocalDateTime(DateTimeFormatter formatter) {
+    if (this.isCellEmpty()) {
+      return null;
+    }
+    try {
+      return LocalDateTime.parse(this.getCharSequence(), formatter);
+    } catch (DateTimeParseException e) {
+      return null;
+    }
+  }
+
+  public Optional<LocalDateTime> findLocalDateTime(DateTimeFormatter formatter) {
+    if (this.isCellEmpty()) {
+      return Optional.empty();
+    }
+    try {
+      return Optional.of(LocalDateTime.parse(this.getCharSequence(), formatter));
+    } catch (DateTimeParseException e) {
+      return Optional.empty();
+    }
+  }
+
+  public ZonedDateTime getZonedDateTime(DateTimeFormatter formatter) {
+    if (this.isCellEmpty()) {
+      return null;
+    }
+    try {
+      return ZonedDateTime.parse(this.getCharSequence(), formatter);
+    } catch (DateTimeParseException e) {
+      return null;
+    }
+  }
+
+  public Optional<ZonedDateTime> findZonedDateTime(DateTimeFormatter formatter) {
+    if (this.isCellEmpty()) {
+      return Optional.empty();
+    }
+    try {
+      return Optional.of(ZonedDateTime.parse(this.getCharSequence(), formatter));
+    } catch (DateTimeParseException e) {
+      return Optional.empty();
+    }
+  }
+
+  public OffsetDateTime getOffsetDateTime(DateTimeFormatter formatter) {
+    if (this.isCellEmpty()) {
+      return null;
+    }
+    try {
+      return OffsetDateTime.parse(this.getCharSequence(), formatter);
+    } catch (DateTimeParseException e) {
+      // TODO catch or throw exception
+      return null;
+    }
+  }
+
+  public Optional<OffsetDateTime> findOffsetDateTime(DateTimeFormatter formatter) {
+    if (this.isCellEmpty()) {
+      return Optional.empty();
+    }
+    try {
+      return Optional.of(OffsetDateTime.parse(this.getCharSequence(), formatter));
+    } catch (DateTimeParseException e) {
+      return Optional.empty();
+    }
+  }
+
   public BigDecimal getBigDecimal() {
+    if (this.isCellEmpty()) {
+      return null;
+    }
+    // TODO catch or throw exception
     return new BigDecimal(this.getString());
+  }
+
+  public BigDecimal getBigDecimal(NumberFormat format) throws ParseException {
+    if (this.isCellEmpty()) {
+      return null;
+    }
+    // TODO catch or throw exception
+    return (BigDecimal) format.parse(this.getString());
   }
 
   public void ifNotEmpty(Consumer<CellSet> consumer) {

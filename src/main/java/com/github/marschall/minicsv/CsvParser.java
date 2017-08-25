@@ -23,10 +23,22 @@ public final class CsvParser {
     this(delimiter, false);
   }
 
-  public void parse(Path path, Charset cs, Consumer<Row> rowCallback) throws IOException {
+  /**
+   * Internal iterator over every row in a CSV file.
+   *
+   * <p>This method is thread safe.</p>
+   *
+   * @param path the file to parse, has to be on the default file system
+   * @param charset the character set of the CSV file
+   * @param rowCallback callback executed for every row
+   * @throws IOException if an exception happens when reading
+   * @see java.nio.file.FileSystems#getDefault()
+   * @see com.github.marschall.lineparser.LineParser#forEach(Path, Charset, Consumer)
+   */
+  public void parse(Path path, Charset charset, Consumer<Row> rowCallback) throws IOException {
     LineParser lineParser = new LineParser();
     LineNumber lineNumber = new LineNumber();
-    lineParser.forEach(path, cs, line -> {
+    lineParser.forEach(path, charset, line -> {
       rowCallback.accept(new Row(line, lineNumber.incrementAndGet(), this.delimiter));
     });
   }
