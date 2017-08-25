@@ -13,6 +13,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 import com.github.marschall.charsequences.CharSequences;
@@ -308,6 +309,17 @@ public final class CellSet {
     }
     // TODO catch or throw exception
     return (BigDecimal) format.parse(this.getString());
+  }
+
+  public UUID getUuid() {
+    if (this.isCellEmpty()) {
+      return null;
+    }
+    try {
+      return CharSequences.uuidFromCharSequence(this.getCharSequence());
+    } catch (IllegalArgumentException e) {
+      return null;
+    }
   }
 
   public void ifNotEmpty(Consumer<CellSet> consumer) {
