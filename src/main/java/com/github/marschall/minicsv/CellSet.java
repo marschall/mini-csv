@@ -96,6 +96,18 @@ public final class CellSet {
 
   }
 
+  public void whileHasNext(Consumer<CellSet> consumer) {
+    while (this.next()) {
+      consumer.accept(this);
+    }
+  }
+
+  public void ifNotEmpty(Consumer<CellSet> consumer) {
+    if (!this.isCellEmpty()) {
+      consumer.accept(this);
+    }
+  }
+
   public int getColumnIndex() {
     return this.columnIndex;
   }
@@ -319,12 +331,6 @@ public final class CellSet {
       return CharSequences.uuidFromCharSequence(this.getCharSequence());
     } catch (IllegalArgumentException e) {
       return null;
-    }
-  }
-
-  public void ifNotEmpty(Consumer<CellSet> consumer) {
-    if (!this.isCellEmpty()) {
-      consumer.accept(this);
     }
   }
 
