@@ -21,6 +21,7 @@ public class CsvParserCountTest {
     Accumulator count = new Accumulator();
     parser.parse(path, StandardCharsets.ISO_8859_1, row -> {
       CellSet cellSet = row.getCellSet();
+//      cellSet.whileHasNext(cs -> count.increment());
       while (cellSet.next()) {
         count.increment();
       }
