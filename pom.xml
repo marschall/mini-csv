@@ -52,6 +52,7 @@
           <links>
             <link>http://docs.oracle.com/javase/8/docs/api/</link>
           </links>
+          <source>8</source>
           <tags>
             <tag>
               <name>implNote</name>
