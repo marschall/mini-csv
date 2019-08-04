@@ -5,12 +5,13 @@ import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.function.Consumer;
 
+import com.github.marschall.lineparser.Line;
 import com.github.marschall.lineparser.LineParser;
 
 public final class CsvParser {
 
   private final char delimiter;
-  // TODO implement
+
   private final boolean ignoreFirstLine;
 
   public CsvParser(char delimiter, boolean ignoreFirstLine) {
@@ -37,24 +38,32 @@ public final class CsvParser {
    */
   public void parse(Path path, Charset charset, Consumer<Row> rowCallback) throws IOException {
     LineParser lineParser = new LineParser();
-    LineNumber lineNumber = new LineNumber();
-    lineParser.forEach(path, charset, line -> {
-      rowCallback.accept(new Row(line, lineNumber.incrementAndGet(), this.delimiter));
-    });
+    LineCallback lineCallback = new LineCallback(this.ignoreFirstLine, rowCallback, this.delimiter);
+    lineParser.forEach(path, charset, lineCallback);
   }
 
-  static final class LineNumber {
+  static final class LineCallback implements Consumer<Line> {
 
-    private int value;
+    private int lineNumber;
+    private final Consumer<Row> rowCallback;
+    private final boolean ignoreFirstLine;
+    private final char delimiter;
 
-    LineNumber() {
-      this.value = 0;
+    LineCallback(boolean ignoreFirstLine, Consumer<Row> rowCallback, char delimiter) {
+      this.ignoreFirstLine = ignoreFirstLine;
+      this.rowCallback = rowCallback;
+      this.delimiter = delimiter;
+      this.lineNumber = 0;
     }
 
-    int incrementAndGet() {
-      int returnValue = this.value;
-      this.value += 1;
-      return returnValue;
+    @Override
+    public void accept(Line line) {
+      this.lineNumber += 1;
+      if (this.ignoreFirstLine && (this.lineNumber == 1)) {
+        return;
+      }
+      Row row = new Row(line, this.lineNumber, this.delimiter);
+      this.rowCallback.accept(row);
     }
 
   }
