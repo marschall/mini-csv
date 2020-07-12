@@ -14,14 +14,22 @@ public final class CsvParser {
 
   private final boolean ignoreFirstLine;
 
+  private final char quote;
+
   public CsvParser(char delimiter, boolean ignoreFirstLine) {
-    // TODO quote character
     this.delimiter = delimiter;
     this.ignoreFirstLine = ignoreFirstLine;
+    this.quote = 0;
   }
 
   public CsvParser(char delimiter) {
     this(delimiter, false);
+  }
+
+  public CsvParser(ParserConfiguration configuration) {
+    this.delimiter = configuration.getDelimiter();
+    this.ignoreFirstLine = configuration.isIgnoreFirstLine();
+    this.quote = configuration.getQuote();
   }
 
   /**
@@ -38,32 +46,61 @@ public final class CsvParser {
    */
   public void parse(Path path, Charset charset, Consumer<Row> rowCallback) throws IOException {
     LineParser lineParser = new LineParser();
-    LineCallback lineCallback = new LineCallback(this.ignoreFirstLine, rowCallback, this.delimiter);
+    Consumer<Line> lineCallback;
+    if (this.ignoreFirstLine) {
+      lineCallback = new IgnoreFirstLineCallback(rowCallback, this.delimiter, this.quote);
+    } else {
+      lineCallback = new AllLinesCallback(rowCallback, this.delimiter, this.quote);
+    }
     lineParser.forEach(path, charset, lineCallback);
   }
 
-  static final class LineCallback implements Consumer<Line> {
+  static final class AllLinesCallback implements Consumer<Line> {
 
     private int lineNumber;
     private final Consumer<Row> rowCallback;
-    private final boolean ignoreFirstLine;
     private final char delimiter;
+    private final char quote;
 
-    LineCallback(boolean ignoreFirstLine, Consumer<Row> rowCallback, char delimiter) {
-      this.ignoreFirstLine = ignoreFirstLine;
+    AllLinesCallback(Consumer<Row> rowCallback, char delimiter, char quote) {
       this.rowCallback = rowCallback;
       this.delimiter = delimiter;
+      this.quote = quote;
       this.lineNumber = 0;
     }
 
     @Override
     public void accept(Line line) {
+      Row row = new Row(line, this.lineNumber, this.delimiter, this.quote);
+      this.rowCallback.accept(row);
       this.lineNumber += 1;
-      if (this.ignoreFirstLine && (this.lineNumber == 1)) {
+    }
+
+  }
+
+  static final class IgnoreFirstLineCallback implements Consumer<Line> {
+
+    private int lineNumber;
+    private final Consumer<Row> rowCallback;
+    private final char delimiter;
+    private final char quote;
+
+    IgnoreFirstLineCallback(Consumer<Row> rowCallback, char delimiter, char quote) {
+      this.rowCallback = rowCallback;
+      this.delimiter = delimiter;
+      this.quote = quote;
+      this.lineNumber = 0;
+    }
+
+    @Override
+    public void accept(Line line) {
+      if (this.lineNumber == 0) {
+        this.lineNumber += 1;
         return;
       }
-      Row row = new Row(line, this.lineNumber, this.delimiter);
+      Row row = new Row(line, this.lineNumber, this.delimiter, this.quote);
       this.rowCallback.accept(row);
+      this.lineNumber += 1;
     }
 
   }

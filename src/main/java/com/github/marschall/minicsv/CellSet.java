@@ -39,6 +39,7 @@ public final class CellSet {
   private final CharSequence charSequence;
 
   private final char delimiter;
+  private final char quote;
 
   private int nextStart;
   private int nextEnd;
@@ -47,8 +48,9 @@ public final class CellSet {
   private final int lineNumber;
   private boolean start;
 
-  CellSet(Line line, int lineNumber, char delimiter) {
+  CellSet(Line line, int lineNumber, char delimiter, char quote) {
     this.lineNumber = lineNumber;
+    this.quote = quote;
     this.charSequence = line.getContent();
     this.delimiter = delimiter;
 
@@ -56,13 +58,47 @@ public final class CellSet {
     this.columnIndex = -1; // first time scanning will increment to 0
   }
 
+  CellSet(Line line, int lineNumber, char delimiter) {
+    this(line, lineNumber, delimiter, (char) 0);
+  }
+
   private int findEnd() {
+    if (this.hasQuote() && this.isCellQuoted()) {
+      return this.findEndQuoted();
+    } else {
+      return this.findEndUnquoted();
+    }
+  }
+
+  private boolean hasQuote() {
+    return this.quote != 0;
+  }
+
+  private boolean isCellQuoted() {
+    return (this.nextStart > 0) && (this.charSequence.charAt(this.nextStart - 1) == this.quote);
+  }
+
+  private int findEndUnquoted() {
     int fromIndex = this.nextStart;
     int length = this.charSequence.length();
     if (fromIndex > length) {
       return length;
     }
     int end = CharSequences.indexOf(this.charSequence, this.delimiter, fromIndex);
+    if (end == -1) {
+      return length;
+    } else {
+      return end;
+    }
+  }
+
+  private int findEndQuoted() {
+    int fromIndex = this.nextStart;
+    int length = this.charSequence.length();
+    if (fromIndex > length) {
+      return length;
+    }
+    int end = CharSequences.indexOf(this.charSequence, this.quote, fromIndex);
     if (end == -1) {
       return length;
     } else {
@@ -78,10 +114,14 @@ public final class CellSet {
     // keep code paths as similar as possible in order to reduce method
     // size after inlining
     if (this.start) {
-      this.nextStart = 0;
+      this.nextStart = this.findFirstStart();
       this.start = false;
     } else {
-      this.nextStart = this.nextEnd + 1; // skip the delimiter
+      if (this.hasQuote()) {
+        this.nextStart = this.findNextStartQuoted();
+      } else {
+        this.nextStart = this.nextEnd + 1; // skip the delimiter
+      }
     }
 
     if (this.nextStart > this.charSequence.length()) {
@@ -94,6 +134,29 @@ public final class CellSet {
       return true;
     }
 
+  }
+
+  private int findNextStartQuoted() {
+    int start = this.nextEnd + 1; // skip the delimiter
+    if (this.isCellQuoted()) {
+      start += 1; // skip the quote
+    }
+    if ((this.charSequence.length() > start) && (this.charSequence.charAt(start) == this.quote)) {
+      start += 1; // skip the next quote
+    }
+    return start;
+  }
+
+  private int findFirstStart() {
+    if (!this.hasQuote()) {
+      return 0;
+    } else {
+      if ((this.charSequence.length() > 0) && (this.charSequence.charAt(0) == this.quote)) {
+        return 1;
+      } else {
+        return 0;
+      }
+    }
   }
 
   public void whileHasNext(Consumer<CellSet> consumer) {
