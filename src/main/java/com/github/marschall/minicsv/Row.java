@@ -12,11 +12,14 @@ public final class Row {
 
   private final char quote;
 
-  Row(Line line, int lineNumber, char delimiter, char quote) {
+  private final char escape;
+
+  Row(Line line, int lineNumber, char delimiter, char quote, char escape) {
     this.line = line;
     this.lineNumber = lineNumber;
     this.delimiter = delimiter;
     this.quote = quote;
+    this.escape = escape;
   }
 
   public Line getLine() {
@@ -24,7 +27,7 @@ public final class Row {
   }
 
   public CellSet getCellSet() {
-    return new CellSet(this.line, this.lineNumber, this.delimiter, this.quote);
+    return new CellSet(this.line, this.lineNumber, this.delimiter, this.quote, this.escape);
   }
 
 }

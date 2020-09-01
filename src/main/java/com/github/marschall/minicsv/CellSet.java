@@ -32,7 +32,6 @@ import com.github.marschall.lineparser.Line;
  */
 public final class CellSet {
 
-  // TODO quotes
   // TODO BigDecimal pattern
   // TODO default values for empty int and long
 
@@ -40,6 +39,7 @@ public final class CellSet {
 
   private final char delimiter;
   private final char quote;
+  private final char escape;
 
   private int nextStart;
   private int nextEnd;
@@ -48,9 +48,11 @@ public final class CellSet {
   private final int lineNumber;
   private boolean start;
 
-  CellSet(Line line, int lineNumber, char delimiter, char quote) {
+
+  CellSet(Line line, int lineNumber, char delimiter, char quote, char escape) {
     this.lineNumber = lineNumber;
     this.quote = quote;
+    this.escape = escape;
     this.charSequence = line.getContent();
     this.delimiter = delimiter;
 
@@ -59,7 +61,7 @@ public final class CellSet {
   }
 
   CellSet(Line line, int lineNumber, char delimiter) {
-    this(line, lineNumber, delimiter, (char) 0);
+    this(line, lineNumber, delimiter, (char) 0, (char) 0);
   }
 
   private int findEnd() {
@@ -72,6 +74,10 @@ public final class CellSet {
 
   private boolean hasQuote() {
     return this.quote != 0;
+  }
+
+  private boolean hasEscape() {
+    return this.escape != 0;
   }
 
   private boolean isCellQuoted() {
@@ -101,6 +107,26 @@ public final class CellSet {
     int end = CharSequences.indexOf(this.charSequence, this.quote, fromIndex);
     if (end == -1) {
       return length;
+    } else if (this.hasEscape()) {
+      if (this.escape == this.quote) {
+        while (((end + 1) < length) && (this.charSequence.charAt(end + 1) == this.quote)) {
+          end += 2;
+          if (end >= length) {
+            return -1;
+          }
+          end = CharSequences.indexOf(this.charSequence, this.delimiter, end);
+        }
+        return end;
+      } else {
+        while ((end > 0) && (this.charSequence.charAt(end - 1) == this.escape)) {
+          end += 1;
+          if (end >= length) {
+            return -1;
+          }
+          end = CharSequences.indexOf(this.charSequence, this.delimiter, end);
+        }
+        return end;
+      }
     } else {
       return end;
     }

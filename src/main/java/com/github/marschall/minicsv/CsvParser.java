@@ -16,10 +16,13 @@ public final class CsvParser {
 
   private final char quote;
 
+  private final char escape;
+
   public CsvParser(char delimiter, boolean ignoreFirstLine) {
     this.delimiter = delimiter;
     this.ignoreFirstLine = ignoreFirstLine;
     this.quote = 0;
+    this.escape = 0;
   }
 
   public CsvParser(char delimiter) {
@@ -28,6 +31,7 @@ public final class CsvParser {
 
   public CsvParser(ParserConfiguration configuration) {
     this.delimiter = configuration.getDelimiter();
+    this.escape = configuration.getEscape();
     this.ignoreFirstLine = configuration.isIgnoreFirstLine();
     this.quote = configuration.getQuote();
   }
@@ -48,9 +52,9 @@ public final class CsvParser {
     LineParser lineParser = new LineParser();
     Consumer<Line> lineCallback;
     if (this.ignoreFirstLine) {
-      lineCallback = new IgnoreFirstLineCallback(rowCallback, this.delimiter, this.quote);
+      lineCallback = new IgnoreFirstLineCallback(rowCallback, this.delimiter, this.quote, this.escape);
     } else {
-      lineCallback = new AllLinesCallback(rowCallback, this.delimiter, this.quote);
+      lineCallback = new AllLinesCallback(rowCallback, this.delimiter, this.quote, this.escape);
     }
     lineParser.forEach(path, charset, lineCallback);
   }
@@ -61,17 +65,19 @@ public final class CsvParser {
     private final Consumer<Row> rowCallback;
     private final char delimiter;
     private final char quote;
+    private final char escape;
 
-    AllLinesCallback(Consumer<Row> rowCallback, char delimiter, char quote) {
+    AllLinesCallback(Consumer<Row> rowCallback, char delimiter, char quote, char escape) {
       this.rowCallback = rowCallback;
       this.delimiter = delimiter;
       this.quote = quote;
+      this.escape = escape;
       this.lineNumber = 0;
     }
 
     @Override
     public void accept(Line line) {
-      Row row = new Row(line, this.lineNumber, this.delimiter, this.quote);
+      Row row = new Row(line, this.lineNumber, this.delimiter, this.quote, this.escape);
       this.rowCallback.accept(row);
       this.lineNumber += 1;
     }
@@ -84,11 +90,13 @@ public final class CsvParser {
     private final Consumer<Row> rowCallback;
     private final char delimiter;
     private final char quote;
+    private final char escape;
 
-    IgnoreFirstLineCallback(Consumer<Row> rowCallback, char delimiter, char quote) {
+    IgnoreFirstLineCallback(Consumer<Row> rowCallback, char delimiter, char quote, char escape) {
       this.rowCallback = rowCallback;
       this.delimiter = delimiter;
       this.quote = quote;
+      this.escape = escape;
       this.lineNumber = 0;
     }
 
@@ -98,7 +106,7 @@ public final class CsvParser {
         this.lineNumber += 1;
         return;
       }
-      Row row = new Row(line, this.lineNumber, this.delimiter, this.quote);
+      Row row = new Row(line, this.lineNumber, this.delimiter, this.quote, this.escape);
       this.rowCallback.accept(row);
       this.lineNumber += 1;
     }

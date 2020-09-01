@@ -8,13 +8,14 @@ public final class ParserConfiguration {
   private final char delimiter;
   private final boolean ignoreFirstLine;
   private final char quote;
-//  private boolean supportsEscapes;
+  private final char escape;
 //  private Charset cs;
 
-  ParserConfiguration(char delimiter, boolean ignoreFirstLine, char quote) {
+  ParserConfiguration(char delimiter, boolean ignoreFirstLine, char quote, char escape) {
     this.delimiter = delimiter;
     this.ignoreFirstLine = ignoreFirstLine;
     this.quote = quote;
+    this.escape = escape;
   }
 
   char getDelimiter() {
@@ -29,6 +30,10 @@ public final class ParserConfiguration {
     return this.quote;
   }
 
+  char getEscape() {
+    return this.escape;
+  }
+
   public static ParserConfigurationBuilder builder() {
     return new ParserConfigurationBuilder();
   }
@@ -38,6 +43,7 @@ public final class ParserConfiguration {
     private char delimiter;
     private boolean ignoreFirstLine;
     private char quote;
+    private char escape;
 
     ParserConfigurationBuilder() {
       this.delimiter = ',';
@@ -53,6 +59,11 @@ public final class ParserConfiguration {
       return this;
     }
 
+    public ParserConfigurationBuilder escape(char escape) {
+      this.escape = escape;
+      return this;
+    }
+
     public ParserConfigurationBuilder ignoreFirstLine() {
       this.ignoreFirstLine = true;
       return this;
@@ -64,7 +75,7 @@ public final class ParserConfiguration {
     }
 
     public ParserConfiguration build() {
-      return new ParserConfiguration(this.delimiter, this.ignoreFirstLine, this.quote);
+      return new ParserConfiguration(this.delimiter, this.ignoreFirstLine, this.quote, this.escape);
     }
 
   }
