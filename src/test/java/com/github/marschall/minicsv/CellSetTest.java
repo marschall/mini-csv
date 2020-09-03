@@ -22,7 +22,7 @@ class CellSetTest {
     AtomicInteger lineNumberHolder = new AtomicInteger(0);
     parser.forEach(Paths.get("src/test/resources/test.csv"), StandardCharsets.US_ASCII, line -> {
       int lineNumber = lineNumberHolder.get();
-      CellSet cellSet = new CellSet(line, lineNumber, ',');
+      CellSet cellSet = new UnquotedCellSet(line, lineNumber, ',', (char) 0, (char) 0);
       switch (lineNumber) {
         case 0: {
           this.validateFirstLine(cellSet);

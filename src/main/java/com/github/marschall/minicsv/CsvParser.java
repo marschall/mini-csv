@@ -50,34 +50,56 @@ public final class CsvParser {
    */
   public void parse(Path path, Charset charset, Consumer<Row> rowCallback) throws IOException {
     LineParser lineParser = new LineParser();
+    CellSetFactory cellSetFactory = this.newCellSetFactory();
     Consumer<Line> lineCallback;
     if (this.ignoreFirstLine) {
-      lineCallback = new IgnoreFirstLineCallback(rowCallback, this.delimiter, this.quote, this.escape);
+      lineCallback = new IgnoreFirstLineCallback(rowCallback, cellSetFactory);
     } else {
-      lineCallback = new AllLinesCallback(rowCallback, this.delimiter, this.quote, this.escape);
+      lineCallback = new AllLinesCallback(rowCallback, cellSetFactory);
     }
     lineParser.forEach(path, charset, lineCallback);
   }
+  
+  private CellSetFactory newCellSetFactory() {
+    if (this.hasQuote()) {
+      if (this.hasEscape()) {
+        if (this.quote == this.escape) {
+          return (line, lineNumber) -> new DoubleQuotedCellSet(line, lineNumber, delimiter, quote, escape);
+        } else {
+          return (line, lineNumber) -> new QuotedEscapedCellSet(line, lineNumber, delimiter, quote, escape);
+        }
+      } else {
+        return (line, lineNumber) -> new QuotedCellSet(line, lineNumber, delimiter, quote, escape);
+      }
+    } else {
+      return (line, lineNumber) -> new UnquotedCellSet(line, lineNumber, delimiter, quote, escape);
+    }
+  }
+
+  private boolean hasQuote() {
+    return this.quote != 0;
+  }
+
+  private boolean hasEscape() {
+    return this.escape != 0;
+  }
+
 
   static final class AllLinesCallback implements Consumer<Line> {
 
     private int lineNumber;
     private final Consumer<Row> rowCallback;
-    private final char delimiter;
-    private final char quote;
-    private final char escape;
+    private final CellSetFactory cellSetFactory;
 
-    AllLinesCallback(Consumer<Row> rowCallback, char delimiter, char quote, char escape) {
+    AllLinesCallback(Consumer<Row> rowCallback, CellSetFactory cellSetFactory) {
       this.rowCallback = rowCallback;
-      this.delimiter = delimiter;
-      this.quote = quote;
-      this.escape = escape;
+      this.cellSetFactory = cellSetFactory;
       this.lineNumber = 0;
     }
 
     @Override
     public void accept(Line line) {
-      Row row = new Row(line, this.lineNumber, this.delimiter, this.quote, this.escape);
+      Row row = new Row(line, this.lineNumber, this.cellSetFactory);
       this.rowCallback.accept(row);
       this.lineNumber += 1;
     }
@@ -88,15 +110,11 @@ public final class CsvParser {
 
     private int lineNumber;
     private final Consumer<Row> rowCallback;
-    private final char delimiter;
-    private final char quote;
-    private final char escape;
+    private final CellSetFactory cellSetFactory;
 
-    IgnoreFirstLineCallback(Consumer<Row> rowCallback, char delimiter, char quote, char escape) {
+    IgnoreFirstLineCallback(Consumer<Row> rowCallback, CellSetFactory cellSetFactory) {
       this.rowCallback = rowCallback;
-      this.delimiter = delimiter;
-      this.quote = quote;
-      this.escape = escape;
+      this.cellSetFactory = cellSetFactory;
       this.lineNumber = 0;
     }
 
@@ -106,7 +124,7 @@ public final class CsvParser {
         this.lineNumber += 1;
         return;
       }
-      Row row = new Row(line, this.lineNumber, this.delimiter, this.quote, this.escape);
+      Row row = new Row(line, this.lineNumber, this.cellSetFactory);
       this.rowCallback.accept(row);
       this.lineNumber += 1;
     }

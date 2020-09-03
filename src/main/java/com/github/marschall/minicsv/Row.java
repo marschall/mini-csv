@@ -6,20 +6,14 @@ public final class Row {
 
   private final Line line;
 
-  private final char delimiter;
-
   private final int lineNumber;
 
-  private final char quote;
+  private final CellSetFactory cellSetFactory;
 
-  private final char escape;
-
-  Row(Line line, int lineNumber, char delimiter, char quote, char escape) {
+  Row(Line line, int lineNumber, CellSetFactory cellSetFactory) {
     this.line = line;
     this.lineNumber = lineNumber;
-    this.delimiter = delimiter;
-    this.quote = quote;
-    this.escape = escape;
+    this.cellSetFactory = cellSetFactory;
   }
 
   public Line getLine() {
@@ -27,7 +21,7 @@ public final class Row {
   }
 
   public CellSet getCellSet() {
-    return new CellSet(this.line, this.lineNumber, this.delimiter, this.quote, this.escape);
+    return this.cellSetFactory.newCellSet(this.line, this.lineNumber);
   }
 
 }

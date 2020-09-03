@@ -30,20 +30,28 @@ import com.github.marschall.lineparser.Line;
  *
  * @see <a href="http://blog.joda.org/2015/09/naming-optional-query-methods.html">Naming Optional query methods</a>
  */
-public final class CellSet {
+public abstract class CellSet {
 
   // TODO BigDecimal pattern
   // TODO default values for empty int and long
 
-  private final CharSequence charSequence;
+  protected final CharSequence charSequence;
 
-  private final char delimiter;
+  protected final char delimiter;
+  protected final int sequenceLength;
   private final char quote;
   private final char escape;
 
-  private int nextStart;
-  private int nextEnd;
-  private int columnIndex;
+  /**
+   * Index of the first content character of the next column.
+   */
+  protected int nextStart;
+
+  /**
+   * Index of the last content character of the next column.
+   */
+  protected int nextEnd;
+  protected int columnIndex;
 
   private final int lineNumber;
   private boolean start;
@@ -54,6 +62,7 @@ public final class CellSet {
     this.quote = quote;
     this.escape = escape;
     this.charSequence = line.getContent();
+    this.sequenceLength = this.charSequence.length();
     this.delimiter = delimiter;
 
     this.start = true;
@@ -159,7 +168,6 @@ public final class CellSet {
       this.columnIndex += 1;
       return true;
     }
-
   }
 
   private int findNextStartQuoted() {
