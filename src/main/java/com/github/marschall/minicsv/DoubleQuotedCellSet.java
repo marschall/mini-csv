@@ -72,32 +72,44 @@ final class DoubleQuotedCellSet extends CellSet {
       if (cellSize == 0) {
         return this.charSequence.subSequence(this.nextContentStart, this.nextCellEnd - 1);
       } else if (cellSize <= MAX_MASK_SIZE) {
-        long escapeMask = 0L;
-        for (int i = 0; i < cellSize; i++) {
-          if (this.charSequence.charAt(this.nextContentStart + i) == this.quote) {
-            escapeMask |= 1L << i;
-            // the next character is by definition not quoted;
-            i += 1;
-          }
-        }
-        return new EscapedCharSubSequence(this.charSequence, this.nextContentStart, this.nextCellEnd - 1, escapeMask);
+        return this.getShortCharSequence(cellSize);
       } else {
-        StringBuilder content = new StringBuilder(cellSize);
-        for (int i = 0; i < cellSize; i++) {
-          char c = this.charSequence.charAt(this.nextContentStart + i);
-          if (c == this.quote) {
-            // the next character is by definition not quoted;
-            content.append(this.charSequence.charAt(this.nextContentStart + i + 1));
-            i += 1;
-          } else {
-            content.append(c);
-          }
-        }
-        return content;
+        return this.getLongCharSequence(cellSize);
       }
     } else {
       return this.charSequence.subSequence(this.nextContentStart, this.nextCellEnd);
     }
+  }
+
+  private CharSequence getShortCharSequence(int cellSize) {
+    long escapeMask = 0L;
+    for (int i = 0; i < cellSize; i++) {
+      if (this.charSequence.charAt(this.nextContentStart + i) == this.quote) {
+        escapeMask |= 1L << i;
+        // the next character is by definition not quoted;
+        i += 1;
+      }
+    }
+    if (escapeMask != 0) {
+      return new EscapedCharSubSequence(this.charSequence, this.nextContentStart, this.nextCellEnd - 1, escapeMask);
+    } else {
+      return this.charSequence.subSequence(this.nextContentStart, this.nextCellEnd - 1);
+    }
+  }
+
+  private CharSequence getLongCharSequence(int cellSize) {
+    StringBuilder content = new StringBuilder(cellSize);
+    for (int i = 0; i < cellSize; i++) {
+      char c = this.charSequence.charAt(this.nextContentStart + i);
+      if (c == this.quote) {
+        // the next character is by definition not quoted;
+        content.append(this.charSequence.charAt(this.nextContentStart + i + 1));
+        i += 1;
+      } else {
+        content.append(c);
+      }
+    }
+    return content;
   }
 
   private boolean isCellQuoted() {

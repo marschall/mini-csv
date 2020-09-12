@@ -2,6 +2,8 @@ package com.github.marschall.minicsv;
 
 import static java.nio.charset.StandardCharsets.US_ASCII;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -14,6 +16,8 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 class CsvParserQuotesTest {
+  
+  private static final String BANK_SAINT_PETERSBURG = "\"BANK \"SAINT PETERSBURG\" PUBLIC JOINT-STOCK COMPANY";
 
   @Test
   void quotes() throws IOException {
@@ -74,6 +78,25 @@ class CsvParserQuotesTest {
       int index = i;
       assertEquals(a, b, () -> "list element: " + index);
     }
+  }
+
+  @Test
+  void escapedCharSubSequence() throws IOException {
+    ParserConfiguration parserConfiguration = ParserConfiguration.builder()
+            .delimiter(',')
+            .quote('"')
+            .escape('"')
+            .build();
+    Path latestCsv = Paths.get("src/test/resources/double-quotes2.csv");
+    CsvParser parser = new CsvParser(parserConfiguration);
+    parser.parse(latestCsv, US_ASCII, row -> {
+      CellSet cellSet = row.getCellSet();
+      assertTrue(cellSet.next());
+      CharSequence charSequence = cellSet.getCharSequence();
+      assertEquals(BANK_SAINT_PETERSBURG, charSequence.toString());
+      assertEquals(BANK_SAINT_PETERSBURG.length(), charSequence.length());
+      assertFalse(cellSet.next());
+    });
   }
 
 }
