@@ -39,14 +39,9 @@ final class UnquotedCellSet extends CellSet {
 
   private int findEnd() {
     int fromIndex = this.nextStart;
-    int length = this.charSequence.length();
-    if (fromIndex > length) {
-      // TODO, should not happen
-      return length;
-    }
     int end = CharSequences.indexOf(this.charSequence, this.delimiter, fromIndex);
     if (end == -1) {
-      return length;
+      return this.sequenceLength;
     } else {
       return end;
     }

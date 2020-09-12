@@ -33,8 +33,14 @@ class CellSetTest {
           this.validateSecondLine(cellSet);
           break;
         }
+
         case 2: {
           this.validateThirdLine(cellSet);
+          break;
+        }
+        
+        case 3: {
+          this.validateFourthLine(cellSet);
           break;
         }
 
@@ -131,6 +137,32 @@ class CellSetTest {
         case 1:
           assertEquals(1, cellSet.getColumnIndex());
           assertTrue(cellSet.isCellEmpty());
+          break;
+        case 2:
+          assertEquals(2, cellSet.getColumnIndex());
+          assertTrue(cellSet.isCellEmpty());
+          break;
+
+        default:
+          fail("unexpected cell index " + cellIndex);
+      }
+      cellIndex += 1;
+    }
+    assertEquals(3, cellIndex);
+  }
+
+  private void validateFourthLine(CellSet cellSet) {
+    int cellIndex = 0;
+    while (cellSet.next()) {
+      switch (cellIndex) {
+        case 0:
+          assertEquals(0, cellSet.getColumnIndex());
+          assertTrue(cellSet.isCellEmpty());
+          break;
+        case 1:
+          assertEquals(1, cellSet.getColumnIndex());
+          assertEquals("x", cellSet.getString());
+          assertFalse(cellSet.isCellEmpty());
           break;
         case 2:
           assertEquals(2, cellSet.getColumnIndex());

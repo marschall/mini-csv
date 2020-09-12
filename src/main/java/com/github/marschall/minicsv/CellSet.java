@@ -427,6 +427,7 @@ public abstract class CellSet {
     try {
       return CharSequences.uuidFromCharSequence(this.getCharSequence());
     } catch (IllegalArgumentException e) {
+      // TODO catch or throw exception
       return null;
     }
   }
