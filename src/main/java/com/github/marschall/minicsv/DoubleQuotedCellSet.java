@@ -64,6 +64,8 @@ final class DoubleQuotedCellSet extends CellSet {
       return (this.nextCellEnd - this.nextCellEnd) == 0;
     }
   }
+  
+  // TODO getString
 
   @Override
   public CharSequence getCharSequence() {
