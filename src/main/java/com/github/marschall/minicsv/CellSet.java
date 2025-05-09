@@ -209,6 +209,27 @@ public final class CellSet {
     return Integer.parseInt(this.charSequence, this.nextStart, this.nextEnd, 10);
   }
 
+  /**
+   * Parses the current cell as an unsigned {@code int}.
+   *
+   * @implNote does not allocate
+   * @return the current cell as an unsigned {@code int}
+   * @throws NumberFormatException if the current cell does not contain a parsable int
+   * @see Integer#parseUnsignedInt(CharSequence, int, int, int)
+   */
+  public int getUnsignedInt() {
+    return Integer.parseUnsignedInt(this.charSequence, this.nextStart, this.nextEnd, 10);
+  }
+
+  /**
+   * Returns the length of the content in characters without any quotes.
+   * 
+   * @return the length of the content in characters
+   */
+  public int getContentLength() {
+    return this.nextEnd - this.nextStart;
+  }
+
   public int getIntOrDefault(int defaultValue) {
     if (this.isCellEmpty()) {
       return defaultValue;
@@ -251,6 +272,18 @@ public final class CellSet {
    */
   public long getLong() {
     return Long.parseLong(this.charSequence, this.nextStart, this.nextEnd, 10);
+  }
+
+  /**
+   * Parses the current cell as an unsigned {@code long}.
+   *
+   * @implNote does not allocate
+   * @return the current cell as an unsigned {@code long}
+   * @throws NumberFormatException if the current cell does not contain a parsable long
+   * @see Long#parseUnsignedLong(CharSequence, int, int, int)
+   */
+  public long getUnsignedLong() {
+    return Long.parseUnsignedLong(this.charSequence, this.nextStart, this.nextEnd, 10);
   }
 
   public String getString() {
