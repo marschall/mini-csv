@@ -32,9 +32,7 @@ import com.github.marschall.lineparser.Line;
  */
 public final class CellSet {
 
-  // TODO quotes
   // TODO BigDecimal pattern
-  // TODO default values for empty int and long
 
   private final CharSequence charSequence;
 
@@ -208,7 +206,7 @@ public final class CellSet {
    * @throws NumberFormatException if the current cell does not contain a parsable int
    */
   public int getInt() {
-    return CharSequences.parseInt(this.charSequence, this.nextStart, this.nextEnd);
+    return Integer.parseInt(this.charSequence, this.nextStart, this.nextEnd, 10);
   }
 
   public int getIntOrDefault(int defaultValue) {
@@ -216,7 +214,7 @@ public final class CellSet {
       return defaultValue;
     }
     try {
-      return CharSequences.parseInt(this.charSequence, this.nextStart, this.nextEnd);
+      return Integer.parseInt(this.charSequence, this.nextStart, this.nextEnd, 10);
     } catch (NumberFormatException e) {
       return defaultValue;
     }
@@ -227,7 +225,7 @@ public final class CellSet {
       return null;
     }
     try {
-      return CharSequences.parseInt(this.charSequence, this.nextStart, this.nextEnd);
+      return Integer.parseInt(this.charSequence, this.nextStart, this.nextEnd, 10);
     } catch (NumberFormatException e) {
       return null;
     }
@@ -238,7 +236,7 @@ public final class CellSet {
       return Optional.empty();
     }
     try {
-      return Optional.of(CharSequences.parseInt(this.charSequence, this.nextStart, this.nextEnd));
+      return Optional.of(Integer.parseInt(this.charSequence, this.nextStart, this.nextEnd, 10));
     } catch (NumberFormatException e) {
       return Optional.empty();
     }
@@ -252,7 +250,7 @@ public final class CellSet {
    * @throws NumberFormatException if the current cell does not contain a parsable long
    */
   public long getLong() {
-    return CharSequences.parseLong(this.charSequence, this.nextStart, this.nextEnd);
+    return Long.parseLong(this.charSequence, this.nextStart, this.nextEnd, 10);
   }
 
   public String getString() {

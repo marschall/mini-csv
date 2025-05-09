@@ -7,8 +7,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -28,7 +26,7 @@ class CsvParserIgnoreFirstLineTest {
       }
       lines.add(cells);
     });
-    List<List<String>> expected = Collections.singletonList(Arrays.asList("value1", "value2", "value3"));
+    List<List<String>> expected = List.of(List.of("value1", "value2", "value3"));
     assertEquals(expected, lines);
   }
 
